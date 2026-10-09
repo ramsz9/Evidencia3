@@ -1,0 +1,22 @@
+# ===== Backend (Spring Boot) =====
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# CREDENCIALES - nunca se suben
+backend/src/main/resources/application-dev.properties
+backend/src/main/resources/application-local.properties
+
+# ===== Frontend (Angular) =====
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.env
+
+# ===== Editores =====
+.vscode/
+.idea/
+*.iml
+
+# ===== Sistema operativo =====
+Thumbs.db
+.DS_Store
