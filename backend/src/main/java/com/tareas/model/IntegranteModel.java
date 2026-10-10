@@ -24,5 +24,7 @@ public class IntegranteModel {
     private Integer id;
     @Column(name = "nombre", columnDefinition = "varchar(80)")
     private String nombre;
+    @Column(name = "apellido", columnDefinition = "varchar(80)")
+    private String apellido;
 
 }
