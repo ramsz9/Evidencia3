@@ -1,14 +1,19 @@
 package com.tareas.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.tareas.dto.TareaConsultaDto;
 import com.tareas.dto.TareaDto;
 import com.tareas.dto.TareaRsDto;
 import com.tareas.exception.BusinessException;
@@ -38,6 +43,20 @@ public class TareaController {
     public ResponseEntity<?> assign(@PathVariable Integer id, @PathVariable Integer integranteId) throws BusinessException {
         TareaRsDto rsDto = tareaService.assign(id, integranteId);
         return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> findAll(
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Integer integranteId) throws BusinessException {
+        List<TareaConsultaDto> tareas = tareaService.findAll(estado, integranteId);
+        return new ResponseEntity<>(tareas, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable Integer id) throws BusinessException {
+        TareaConsultaDto tarea = tareaService.findById(id);
+        return new ResponseEntity<>(tarea, HttpStatus.OK);
     }
 
 }

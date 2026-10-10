@@ -1,7 +1,10 @@
 package com.tareas.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import com.tareas.dto.TareaConsultaDto;
 import com.tareas.dto.TareaDto;
 import com.tareas.dto.TareaRsDto;
 import com.tareas.exception.BusinessException;
@@ -14,6 +17,9 @@ public class TareaService {
 
     private final TareaRepository tareaRepository;
     private final IntegranteRepository integranteRepository;
+
+    private static final List<String> ESTADOS_VALIDOS = 
+            List.of("PENDIENTE", "EN_PROCESO", "TERMINADA");
 
     public TareaService(TareaRepository tareaRepository, IntegranteRepository integranteRepository) {
         this.tareaRepository = tareaRepository;
@@ -35,10 +41,54 @@ public class TareaService {
                     .message("La tarea no existe")
                     .build();
         }
+
         validateIntegrante(integranteId);
         model.setIntegranteId(integranteId);
         tareaRepository.save(model);
+
         return new TareaRsDto("Tarea asignada", id);
+    }
+
+    public List<TareaConsultaDto> findAll(String estado, Integer integranteId) throws BusinessException {
+        String filtroEstado = (estado != null) ? estado.toUpperCase() : null;
+
+        if (filtroEstado != null && !ESTADOS_VALIDOS.contains(filtroEstado)) {
+            throw BusinessException.builder()
+                    .message("El estado proporcionado no es válido. Use: PENDIENTE, EN_PROCESO o TERMINADA")
+                    .build();
+        }
+
+        if (integranteId != null) {
+            validateIntegrante(integranteId);
+        }
+
+        List<TareaModel> tareas;
+
+        if (filtroEstado != null && integranteId != null) {
+            tareas = tareaRepository.findByEstadoAndIntegranteId(filtroEstado, integranteId);
+        } else if (filtroEstado != null) {
+            tareas = tareaRepository.findByEstado(filtroEstado);
+        } else if (integranteId != null) {
+            tareas = tareaRepository.findByIntegranteId(integranteId);
+        } else {
+            tareas = tareaRepository.findAll();
+        }
+
+        return tareas.stream()
+                .map(TareaConsultaDto::from)
+                .toList();
+    }
+
+    public TareaConsultaDto findById(Integer id) throws BusinessException {
+        TareaModel model = tareaRepository.findById(id).orElse(null);
+
+        if (model == null) {
+            throw BusinessException.builder()
+                    .message("La tarea con ID " + id + " no existe")
+                    .build();
+        }
+
+        return TareaConsultaDto.from(model);
     }
 
     private void validateIntegrante(Integer integranteId) throws BusinessException {
@@ -48,5 +98,4 @@ public class TareaService {
                     .build();
         }
     }
-
 }
