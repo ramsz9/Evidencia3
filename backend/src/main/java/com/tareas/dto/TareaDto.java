@@ -15,6 +15,7 @@ public class TareaDto {
 
     private String titulo;
     private String descripcion;
+    private String estado;
     private String prioridad;
     private Integer integranteId;
 

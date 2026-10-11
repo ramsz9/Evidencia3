@@ -39,6 +39,14 @@ public class TareaController {
         return new ResponseEntity<>(rsDto, HttpStatus.OK);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody TareaDto tareaDto)
+            throws BusinessException {
+        validationUtil.validate(tareaDto);
+        TareaRsDto rsDto = tareaService.update(id, tareaDto);
+        return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}/integrante/{integranteId}")
     public ResponseEntity<?> assign(@PathVariable Integer id, @PathVariable Integer integranteId) throws BusinessException {
         TareaRsDto rsDto = tareaService.assign(id, integranteId);
