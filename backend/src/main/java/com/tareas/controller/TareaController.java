@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tareas.dto.TareaConsultaDto;
 import com.tareas.dto.TareaDto;
+import com.tareas.dto.TareaEstadoDto;
+import com.tareas.dto.TareaEstadoPrioridadDto;
+import com.tareas.dto.TareaPrioridadDto;
 import com.tareas.dto.TareaRsDto;
 import com.tareas.exception.BusinessException;
 import com.tareas.service.TareaService;
@@ -43,6 +46,52 @@ public class TareaController {
     public ResponseEntity<?> assign(@PathVariable Integer id, @PathVariable Integer integranteId) throws BusinessException {
         TareaRsDto rsDto = tareaService.assign(id, integranteId);
         return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/estado/{estado}")
+    public ResponseEntity<?> updateEstado(@PathVariable Integer id, @PathVariable String estado) throws BusinessException {
+        validationUtil.validateEstado(estado);
+        TareaRsDto rsDto = tareaService.updateEstado(id, estado);
+        return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<?> updateEstadoBody(@PathVariable Integer id, @RequestBody TareaEstadoDto dto) throws BusinessException {
+        validationUtil.validateEstado(dto.estado());
+        TareaRsDto rsDto = tareaService.updateEstado(id, dto.estado());
+        return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/prioridad/{prioridad}")
+    public ResponseEntity<?> updatePrioridad(@PathVariable Integer id, @PathVariable String prioridad) throws BusinessException {
+        validationUtil.validatePrioridad(prioridad);
+        TareaRsDto rsDto = tareaService.updatePrioridad(id, prioridad);
+        return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/prioridad")
+    public ResponseEntity<?> updatePrioridadBody(@PathVariable Integer id, @RequestBody TareaPrioridadDto dto) throws BusinessException {
+        validationUtil.validatePrioridad(dto.prioridad());
+        TareaRsDto rsDto = tareaService.updatePrioridad(id, dto.prioridad());
+        return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/estado-prioridad")
+    public ResponseEntity<?> updateEstadoPrioridad(@PathVariable Integer id, @RequestBody TareaEstadoPrioridadDto dto) throws BusinessException {
+        validationUtil.validateEstado(dto.estado());
+        validationUtil.validatePrioridad(dto.prioridad());
+        TareaRsDto rsDto = tareaService.updateEstadoYPrioridad(id, dto.estado(), dto.prioridad());
+        return new ResponseEntity<>(rsDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/estados")
+    public ResponseEntity<?> getEstados() {
+        return new ResponseEntity<>(tareaService.getEstados(), HttpStatus.OK);
+    }
+
+    @GetMapping("/prioridades")
+    public ResponseEntity<?> getPrioridades() {
+        return new ResponseEntity<>(tareaService.getPrioridades(), HttpStatus.OK);
     }
 
     @GetMapping
