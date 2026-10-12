@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.tareas.dto.TareaConsultaDto;
 import com.tareas.dto.TareaDto;
+import com.tareas.dto.TareaFiltroDto;
 import com.tareas.dto.TareaRsDto;
 import com.tareas.exception.BusinessException;
+import com.tareas.model.IntegranteModel;
 import com.tareas.model.TareaModel;
 import com.tareas.repository.IntegranteRepository;
 import com.tareas.repository.TareaRepository;
@@ -158,6 +160,59 @@ public class TareaService {
 
     public List<String> getPrioridades() {
         return ValidationUtil.PRIORIDADES_VALIDAS;
+    }
+
+    public List<TareaFiltroDto> filtrarTareas(String estado, Integer integranteId, Boolean sinAsignar) throws BusinessException {
+        String filtroEstado = (estado != null && !estado.isBlank()) ? estado.trim().toUpperCase() : null;
+        if (filtroEstado != null) {
+            validationUtil.validateEstado(filtroEstado);
+        }
+
+        if (integranteId != null) {
+            validateIntegrante(integranteId);
+        }
+
+        List<TareaModel> tareas;
+
+        if (Boolean.TRUE.equals(sinAsignar)) {
+            if (filtroEstado != null) {
+                tareas = tareaRepository.findByEstadoAndIntegranteIdIsNull(filtroEstado);
+            } else {
+                tareas = tareaRepository.findByIntegranteIdIsNull();
+            }
+        } else if (filtroEstado != null && integranteId != null) {
+            tareas = tareaRepository.findByEstadoAndIntegranteId(filtroEstado, integranteId);
+        } else if (filtroEstado != null) {
+            tareas = tareaRepository.findByEstado(filtroEstado);
+        } else if (integranteId != null) {
+            tareas = tareaRepository.findByIntegranteId(integranteId);
+        } else {
+            tareas = tareaRepository.findAll();
+        }
+
+        return tareas.stream()
+                .map(this::mapToFiltroDto)
+                .toList();
+    }
+
+    public List<TareaFiltroDto> filtrarPorEstado(String estado) throws BusinessException {
+        return filtrarTareas(estado, null, false);
+    }
+
+    public List<TareaFiltroDto> filtrarPorResponsable(Integer integranteId) throws BusinessException {
+        return filtrarTareas(null, integranteId, false);
+    }
+
+    public List<TareaFiltroDto> filtrarSinAsignar() throws BusinessException {
+        return filtrarTareas(null, null, true);
+    }
+
+    private TareaFiltroDto mapToFiltroDto(TareaModel tarea) {
+        IntegranteModel integrante = null;
+        if (tarea.getIntegranteId() != null) {
+            integrante = integranteRepository.findById(tarea.getIntegranteId()).orElse(null);
+        }
+        return TareaFiltroDto.from(tarea, integrante);
     }
 
     private void validateIntegrante(Integer integranteId) throws BusinessException {

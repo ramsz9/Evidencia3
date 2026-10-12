@@ -18,6 +18,7 @@ import com.tareas.dto.TareaConsultaDto;
 import com.tareas.dto.TareaDto;
 import com.tareas.dto.TareaEstadoDto;
 import com.tareas.dto.TareaEstadoPrioridadDto;
+import com.tareas.dto.TareaFiltroDto;
 import com.tareas.dto.TareaPrioridadDto;
 import com.tareas.dto.TareaRsDto;
 import com.tareas.exception.BusinessException;
@@ -93,6 +94,33 @@ public class TareaController {
     @GetMapping("/prioridades")
     public ResponseEntity<?> getPrioridades() {
         return new ResponseEntity<>(tareaService.getPrioridades(), HttpStatus.OK);
+    }
+
+    @GetMapping("/filtro")
+    public ResponseEntity<?> filtrar(
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Integer integranteId,
+            @RequestParam(required = false) Boolean sinAsignar) throws BusinessException {
+        List<TareaFiltroDto> tareas = tareaService.filtrarTareas(estado, integranteId, sinAsignar);
+        return new ResponseEntity<>(tareas, HttpStatus.OK);
+    }
+
+    @GetMapping("/filtro/estado/{estado}")
+    public ResponseEntity<?> filtrarPorEstado(@PathVariable String estado) throws BusinessException {
+        List<TareaFiltroDto> tareas = tareaService.filtrarPorEstado(estado);
+        return new ResponseEntity<>(tareas, HttpStatus.OK);
+    }
+
+    @GetMapping("/filtro/responsable/{integranteId}")
+    public ResponseEntity<?> filtrarPorResponsable(@PathVariable Integer integranteId) throws BusinessException {
+        List<TareaFiltroDto> tareas = tareaService.filtrarPorResponsable(integranteId);
+        return new ResponseEntity<>(tareas, HttpStatus.OK);
+    }
+
+    @GetMapping("/filtro/sin-asignar")
+    public ResponseEntity<?> filtrarSinAsignar() throws BusinessException {
+        List<TareaFiltroDto> tareas = tareaService.filtrarSinAsignar();
+        return new ResponseEntity<>(tareas, HttpStatus.OK);
     }
 
     @GetMapping
