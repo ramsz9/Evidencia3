@@ -12,18 +12,21 @@ import com.tareas.model.TareaModel;
 import com.tareas.repository.IntegranteRepository;
 import com.tareas.repository.TareaRepository;
 
+import com.tareas.util.ValidationUtil;
+
 @Service
 public class TareaService {
 
     private final TareaRepository tareaRepository;
     private final IntegranteRepository integranteRepository;
+    private final ValidationUtil validationUtil;
 
-    private static final List<String> ESTADOS_VALIDOS = 
-            List.of("PENDIENTE", "EN_PROCESO", "TERMINADA");
+    private static final List<String> ESTADOS_VALIDOS = ValidationUtil.ESTADOS_VALIDOS;
 
-    public TareaService(TareaRepository tareaRepository, IntegranteRepository integranteRepository) {
+    public TareaService(TareaRepository tareaRepository, IntegranteRepository integranteRepository, ValidationUtil validationUtil) {
         this.tareaRepository = tareaRepository;
         this.integranteRepository = integranteRepository;
+        this.validationUtil = validationUtil;
     }
 
     public TareaRsDto create(TareaDto dto) throws BusinessException {
@@ -100,6 +103,61 @@ public class TareaService {
 
         tareaRepository.deleteById(id);
         return new TareaRsDto("Tarea eliminada", id);
+    }
+
+    public TareaRsDto updateEstado(Integer id, String estado) throws BusinessException {
+        validationUtil.validateEstado(estado);
+        TareaModel model = tareaRepository.findById(id).orElse(null);
+        if (model == null) {
+            throw BusinessException.builder()
+                    .message("La tarea con ID " + id + " no existe")
+                    .build();
+        }
+
+        model.setEstado(estado.trim().toUpperCase());
+        tareaRepository.save(model);
+
+        return new TareaRsDto("Estado actualizado", id);
+    }
+
+    public TareaRsDto updatePrioridad(Integer id, String prioridad) throws BusinessException {
+        validationUtil.validatePrioridad(prioridad);
+        TareaModel model = tareaRepository.findById(id).orElse(null);
+        if (model == null) {
+            throw BusinessException.builder()
+                    .message("La tarea con ID " + id + " no existe")
+                    .build();
+        }
+
+        model.setPrioridad(prioridad.trim().toUpperCase());
+        tareaRepository.save(model);
+
+        return new TareaRsDto("Prioridad actualizada", id);
+    }
+
+    public TareaRsDto updateEstadoYPrioridad(Integer id, String estado, String prioridad) throws BusinessException {
+        validationUtil.validateEstado(estado);
+        validationUtil.validatePrioridad(prioridad);
+        TareaModel model = tareaRepository.findById(id).orElse(null);
+        if (model == null) {
+            throw BusinessException.builder()
+                    .message("La tarea con ID " + id + " no existe")
+                    .build();
+        }
+
+        model.setEstado(estado.trim().toUpperCase());
+        model.setPrioridad(prioridad.trim().toUpperCase());
+        tareaRepository.save(model);
+
+        return new TareaRsDto("Estado y prioridad actualizados", id);
+    }
+
+    public List<String> getEstados() {
+        return ValidationUtil.ESTADOS_VALIDOS;
+    }
+
+    public List<String> getPrioridades() {
+        return ValidationUtil.PRIORIDADES_VALIDAS;
     }
 
     private void validateIntegrante(Integer integranteId) throws BusinessException {
