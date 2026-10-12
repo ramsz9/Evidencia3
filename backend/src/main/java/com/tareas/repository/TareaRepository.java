@@ -11,4 +11,6 @@ public interface TareaRepository extends JpaRepository<TareaModel, Integer> {
     List<TareaModel> findByEstado(String estado);
     List<TareaModel> findByIntegranteId(Integer integranteId);
     List<TareaModel> findByEstadoAndIntegranteId(String estado, Integer integranteId);
+    List<TareaModel> findByIntegranteIdIsNull();
+    List<TareaModel> findByEstadoAndIntegranteIdIsNull(String estado);
 }
