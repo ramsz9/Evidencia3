@@ -94,6 +94,17 @@ public class TareaService {
         return TareaConsultaDto.from(model);
     }
 
+    public TareaRsDto delete(Integer id) throws BusinessException {
+        if (!tareaRepository.existsById(id)) {
+            throw BusinessException.builder()
+                    .message("La tarea con ID " + id + " no existe")
+                    .build();
+        }
+
+        tareaRepository.deleteById(id);
+        return new TareaRsDto("Tarea eliminada", id);
+    }
+
     public TareaRsDto updateEstado(Integer id, String estado) throws BusinessException {
         validationUtil.validateEstado(estado);
         TareaModel model = tareaRepository.findById(id).orElse(null);
