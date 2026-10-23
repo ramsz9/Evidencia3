@@ -39,6 +39,34 @@ public class TareaService {
         return new TareaRsDto("Tarea registrada", id);
     }
 
+    public TareaRsDto update(Integer id, TareaDto dto) throws BusinessException {
+        TareaModel model = tareaRepository.findById(id).orElse(null);
+        if (model == null) {
+            throw BusinessException.builder()
+                    .message("La tarea con ID " + id + " no existe")
+                    .build();
+        }
+
+        validateIntegrante(dto.getIntegranteId());
+        if (dto.getEstado() != null) {
+            String estado = dto.getEstado().toUpperCase();
+            if (!ESTADOS_VALIDOS.contains(estado)) {
+                throw BusinessException.builder()
+                        .message("El estado proporcionado no es válido. Use: PENDIENTE, EN_PROCESO o TERMINADA")
+                        .build();
+            }
+            model.setEstado(estado);
+        }
+
+        model.setTitulo(dto.getTitulo());
+        model.setDescripcion(dto.getDescripcion());
+        model.setPrioridad(dto.getPrioridad());
+        model.setIntegranteId(dto.getIntegranteId());
+        tareaRepository.save(model);
+
+        return new TareaRsDto("Tarea modificada", id);
+    }
+
     public TareaRsDto assign(Integer id, Integer integranteId) throws BusinessException {
         TareaModel model = tareaRepository.findById(id).orElse(null);
         if (model == null) {
